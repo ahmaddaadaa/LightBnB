@@ -28,7 +28,7 @@ const getUserWithEmail = function (email) {
     })
     .catch((err) => {
       console.log(err.message);
-      return Promise.reject(null);
+      return Promise.reject(err);
     });
   
 };
@@ -50,7 +50,7 @@ const getUserWithId = function (id) {
   })
   .catch((err) => {
     console.log(err.message);
-    return Promise.reject(null);
+    return Promise.reject(err);
   });
 };
 
@@ -67,7 +67,7 @@ const addUser = function (user) {
     })
     .catch((err) => {
       console.log(err.message);
-      return Promise.reject(null);
+      return Promise.reject(err);
     });
 };
 
@@ -80,7 +80,22 @@ const addUser = function (user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  return pool
+  .query(`SELECT * FROM reservations
+  JOIN properties ON properties.id = reservations.property_id
+  WHERE guest_id = $1 LIMIT $2;`, [guest_id, limit])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        console.log("!!!!!!!!!!!1result.rows", result.rows);
+        return null;
+      }
+      console.log("!!!!!!!!!!!1result.rows", result.rows);
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return err;
+    });
 };
 
 /// Properties
